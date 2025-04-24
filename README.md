@@ -33,7 +33,7 @@ Setup Instructions
 1. Clone the repository
 
 git clone https://github.com/saharoid/ai-dashboard.git
-cd ai-intelligence-dashboard
+cd ai-dashboard
 
 2. Install dependencies
 
