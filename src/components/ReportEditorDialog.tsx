@@ -6,11 +6,11 @@ import {
   DialogTitle,
   TextField,
   Button,
-} from '@mui/material';
-import JoditEditor from 'jodit-react';
-import { useEffect, useRef, useState } from 'react';
-import { useReportStore } from '../store/reportStore';
-import { v4 as uuidv4 } from 'uuid';
+} from "@mui/material";
+import JoditEditor from "jodit-react";
+import { useEffect, useRef, useState } from "react";
+import { useReportStore } from "../store/reportStore";
+import { v4 as uuidv4 } from "uuid";
 
 const ReportEditorDialog = () => {
   const editor = useRef(null);
@@ -23,16 +23,16 @@ const ReportEditorDialog = () => {
     selectReport,
   } = useReportStore();
 
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
 
   useEffect(() => {
     if (selectedReport) {
       setTitle(selectedReport.title);
       setContent(selectedReport.content);
     } else {
-      setTitle('');
-      setContent('');
+      setTitle("");
+      setContent("");
     }
   }, [selectedReport]);
 
@@ -52,7 +52,9 @@ const ReportEditorDialog = () => {
 
   return (
     <Dialog open={editorOpen} onClose={handleClose} fullWidth maxWidth="md">
-      <DialogTitle>{selectedReport ? 'Edit Report' : 'Create New Report'}</DialogTitle>
+      <DialogTitle>
+        {selectedReport ? "Edit Report" : "Create New Report"}
+      </DialogTitle>
       <DialogContent dividers>
         <TextField
           label="Title"
@@ -70,7 +72,11 @@ const ReportEditorDialog = () => {
       </DialogContent>
       <DialogActions>
         <Button onClick={handleClose}>Cancel</Button>
-        <Button onClick={handleSave} variant="contained" disabled={!title || !content}>
+        <Button
+          onClick={handleSave}
+          variant="contained"
+          disabled={!title || !content}
+        >
           Save
         </Button>
       </DialogActions>

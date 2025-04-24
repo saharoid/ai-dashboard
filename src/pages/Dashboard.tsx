@@ -1,7 +1,6 @@
 import {
   Box,
   Button,
-  Grid,
   Paper,
   TextField,
   InputAdornment,
@@ -11,21 +10,16 @@ import {
   Switch,
 } from "@mui/material";
 import { useReportStore } from "../store/reportStore";
-import ReportCard from "../components/ReportCard";
 import { generateDraft } from "../api/openai";
 import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import ReportEditorDialog from "../components/ReportEditorDialog";
 import SearchIcon from "@mui/icons-material/Search";
 import { useUserStore } from "../store/userStore";
+import SortableReportList from "../components/SortableReportList";
 
 const Dashboard = () => {
-  const {
-    reports,
-    addReport,
-    searchQuery,
-    setSearchQuery,
-  } = useReportStore();
+  const { reports, addReport, searchQuery, setSearchQuery } = useReportStore();
   const { userRole, setUserRole } = useUserStore();
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false);
@@ -117,13 +111,7 @@ const Dashboard = () => {
           />
         </Box>
         {/* Report List */}
-        <Grid container spacing={2}>
-          {filteredReports.map((r) => (
-            <Grid key={r.id} size={{ xs: 12, sm: 6, md: 4 }}>
-              <ReportCard {...r} />
-            </Grid>
-          ))}
-        </Grid>
+        <SortableReportList reports={filteredReports} />
       </Paper>
     </Box>
   );

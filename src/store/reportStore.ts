@@ -1,13 +1,8 @@
 // src/store/reportStore.ts
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
-import { v4 as uuidv4 } from 'uuid';
-
-export interface Report {
-  id: string;
-  title: string;
-  content: string;
-}
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
+import { v4 as uuidv4 } from "uuid";
+import { Report } from "../types/Report";
 
 interface ReportStore {
   reports: Report[];
@@ -22,6 +17,7 @@ interface ReportStore {
   selectReport: (report: Report | null) => void;
   searchQuery: string;
   setSearchQuery: (query: string) => void;
+  reorderReports: (newOrder: Report[]) => void;
 }
 
 export const useReportStore = create<ReportStore>()(
@@ -53,11 +49,12 @@ export const useReportStore = create<ReportStore>()(
         })),
 
       selectReport: (report) => set({ selectedReport: report }),
-      searchQuery: '',
+      searchQuery: "",
       setSearchQuery: (query) => set({ searchQuery: query }),
+      reorderReports: (newOrder: Report[]) => set({ reports: newOrder }),
     }),
     {
-      name: 'report-store', // key in localStorage
+      name: "report-store", // key in localStorage
       partialize: (state) => ({
         reports: state.reports,
       }),
