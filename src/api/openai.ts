@@ -1,18 +1,20 @@
-import axios from "axios";
+import axios from 'axios';
 
-const apiKey = '';
+const apiKey = import.meta.env.VITE_API_KEY;
+
+console.log(apiKey)
 
 export const generateDraft = async (prompt: string) => {
   const res = await axios.post(
-    "https://api.openai.com/v1/chat/completions",
+    'https://api.openai.com/v1/chat/completions',
     {
-      model: "gpt-4",
-      messages: [{ role: "user", content: prompt }],
+      model: 'gpt-4',
+      messages: [{ role: 'user', content: prompt }],
     },
     {
       headers: {
         Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
     }
   );
