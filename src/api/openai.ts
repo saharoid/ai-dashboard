@@ -1,19 +1,18 @@
-import axios from 'axios';
+import axios from "axios";
 
-const apiKey = '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';
+const apiKey = '';
 
 export const generateDraft = async (prompt: string) => {
-    console.log(apiKey, 'api key')
   const res = await axios.post(
-    'https://api.openai.com/v1/chat/completions',
+    "https://api.openai.com/v1/chat/completions",
     {
-      model: 'gpt-4',
-      messages: [{ role: 'user', content: prompt }],
+      model: "gpt-4",
+      messages: [{ role: "user", content: prompt }],
     },
     {
       headers: {
         Authorization: `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
     }
   );
