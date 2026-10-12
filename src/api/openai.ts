@@ -1,27 +1,13 @@
-import axios from 'axios';
+import axios from "axios";
 
-const apiKey = import.meta.env.VITE_API_KEY;
+// Calls go to our own server (server/index.ts). The OpenAI key stays there.
 
-console.log(apiKey)
-
-export const generateDraft = async (prompt: string) => {
-  const res = await axios.post(
-    'https://api.openai.com/v1/chat/completions',
-    {
-      model: 'gpt-4',
-      messages: [{ role: 'user', content: prompt }],
-    },
-    {
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
-    }
-  );
-
-  return res.data.choices[0].message.content;
+export const generateDraft = async (prompt: string): Promise<string> => {
+  const res = await axios.post("/api/draft", { prompt });
+  return res.data.content;
 };
 
-export const summarizeContent = async (content: string) => {
-  return generateDraft(`Summarize the following:\n\n${content}`);
+export const summarizeContent = async (content: string): Promise<string> => {
+  const res = await axios.post("/api/summarize", { content });
+  return res.data.content;
 };
