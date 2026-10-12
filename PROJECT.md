@@ -52,13 +52,12 @@ Scripts: `npm run dev`, `npm run build`, `npm run lint`, `npm run preview`.
 
 1. ~~**API key exposed.**~~ Fixed in step 1: key moved to the Express server
    in `server/`. The old key is still in git history and must be revoked.
-2. **No backend.** Data lives only in one browser's localStorage. Roles are a
-   UI toggle, not auth.
-3. **No way to create a blank report.** The editor dialog supports create, but
-   nothing in the UI opens it without a selected report.
+2. ~~**No backend.**~~ Fixed in steps 2+3: reports in Supabase Postgres,
+   Supabase Auth sign-in, role in `profiles` checked by the server.
+3. ~~**No way to create a blank report.**~~ Fixed: "New report" button.
 4. **Summarize is destructive.** It overwrites the original content.
-5. **Reorder while searching drops reports.** `reorderReports` saves only the
-   filtered list, so hidden reports are lost.
+5. ~~**Reorder while searching drops reports.**~~ Fixed: reorder moves within
+   the full list.
 6. **AI output not formatted.** Model returns plain text/markdown, stored as
    HTML content.
 7. Leftovers: package name `test-app`, page title "Vite + React + TS", outdated

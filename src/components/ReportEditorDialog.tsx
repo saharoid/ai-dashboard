@@ -6,11 +6,11 @@ import {
   DialogTitle,
   TextField,
   Button,
+  Typography,
 } from "@mui/material";
 import JoditEditor from "jodit-react";
 import { useEffect, useRef, useState } from "react";
 import { useReportStore } from "../store/reportStore";
-import { v4 as uuidv4 } from "uuid";
 
 const ReportEditorDialog = () => {
   const editor = useRef(null);
@@ -25,6 +25,8 @@ const ReportEditorDialog = () => {
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (selectedReport) {
@@ -39,15 +41,25 @@ const ReportEditorDialog = () => {
   const handleClose = () => {
     setEditorOpen(false);
     selectReport(null);
+    setError(null);
   };
 
-  const handleSave = () => {
-    if (selectedReport) {
-      updateReport({ ...selectedReport, title, content });
-    } else {
-      addReport({ id: uuidv4(), title, content });
+  const handleSave = async () => {
+    setSaving(true);
+    setError(null);
+    try {
+      if (selectedReport) {
+        await updateReport(selectedReport.id, { title, content });
+      } else {
+        await addReport({ title, content });
+      }
+      handleClose();
+    } catch (e) {
+      console.error(e);
+      setError("Failed to save report");
+    } finally {
+      setSaving(false);
     }
-    handleClose();
   };
 
   return (
@@ -69,13 +81,18 @@ const ReportEditorDialog = () => {
           config={{ readonly: false }}
           onBlur={(newContent) => setContent(newContent)}
         />
+        {error && (
+          <Typography color="error" mt={2}>
+            {error}
+          </Typography>
+        )}
       </DialogContent>
       <DialogActions>
         <Button onClick={handleClose}>Cancel</Button>
         <Button
           onClick={handleSave}
           variant="contained"
-          disabled={!title || !content}
+          disabled={saving || !title || !content}
         >
           Save
         </Button>

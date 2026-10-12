@@ -12,7 +12,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import { useReportStore } from "../store/reportStore";
 import { summarizeContent } from "../api/openai";
 import SummarizeIcon from "@mui/icons-material/Summarize";
-import { useUserStore } from "../store/userStore";
+import { useAuthStore } from "../store/authStore";
 import DOMPurify from "dompurify";
 import DragHandleIcon from "@mui/icons-material/DragHandle";
 import { useSortable } from "@dnd-kit/sortable";
@@ -26,9 +26,8 @@ interface Props {
 const ReportCard: React.FC<Props> = ({ id, title, content }) => {
   const { attributes, listeners } = useSortable({ id });
   const { updateReport, selectReport, setEditorOpen } = useReportStore();
-  const { userRole } = useUserStore();
+  const isAdmin = useAuthStore((s) => s.me?.role === "admin");
   const [loading, setLoading] = useState(false);
-  const isAdmin = userRole === "Admin";
 
   const handleEdit = (e: React.MouseEvent) => {
     e.stopPropagation(); // prevent unintended drag
@@ -41,7 +40,7 @@ const ReportCard: React.FC<Props> = ({ id, title, content }) => {
     setLoading(true);
     try {
       const summary = await summarizeContent(content);
-      updateReport({ id, title, content: summary });
+      await updateReport(id, { title, content: summary });
     } catch (error) {
       console.error("Summarization failed:", error);
     } finally {
@@ -61,9 +60,11 @@ const ReportCard: React.FC<Props> = ({ id, title, content }) => {
           }}
         >
           {title}
-          <Box component="span" {...attributes} {...listeners}>
-            <DragHandleIcon color="primary" sx={{ ml: 1, cursor: "grab" }} />
-          </Box>
+          {isAdmin && (
+            <Box component="span" {...attributes} {...listeners}>
+              <DragHandleIcon color="primary" sx={{ ml: 1, cursor: "grab" }} />
+            </Box>
+          )}
         </Typography>
         <Typography
           variant="body2"
