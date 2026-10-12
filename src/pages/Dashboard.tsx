@@ -6,25 +6,35 @@ import {
   InputAdornment,
   Typography,
   CircularProgress,
-  FormControlLabel,
-  Switch,
 } from "@mui/material";
 import { useReportStore } from "../store/reportStore";
 import { generateDraft } from "../api/openai";
-import { useState } from "react";
-import { v4 as uuidv4 } from "uuid";
+import { useEffect, useState } from "react";
 import ReportEditorDialog from "../components/ReportEditorDialog";
 import SearchIcon from "@mui/icons-material/Search";
-import { useUserStore } from "../store/userStore";
+import { useAuthStore } from "../store/authStore";
 import SortableReportList from "../components/SortableReportList";
 
 const Dashboard = () => {
-  const { reports, addReport, searchQuery, setSearchQuery } = useReportStore();
-  const { userRole, setUserRole } = useUserStore();
+  const {
+    reports,
+    addReport,
+    loadReports,
+    loading: loadingReports,
+    error: reportsError,
+    searchQuery,
+    setSearchQuery,
+    setEditorOpen,
+  } = useReportStore();
+  const { me, signOut } = useAuthStore();
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const isAdmin = userRole === "Admin";
+  const isAdmin = me?.role === "admin";
+
+  useEffect(() => {
+    loadReports();
+  }, [loadReports]);
 
   const handleGenerateDraft = async () => {
     setLoading(true);
@@ -33,8 +43,7 @@ const Dashboard = () => {
       const content = await generateDraft(prompt);
       const titleFromPrompt =
         prompt.length > 60 ? prompt.slice(0, 60) + "..." : prompt;
-      addReport({
-        id: uuidv4(),
+      await addReport({
         title: titleFromPrompt || "Untitled",
         content,
       });
@@ -54,30 +63,37 @@ const Dashboard = () => {
   return (
     <Box>
       <Paper sx={{ p: 2 }}>
-        <Typography variant="h4" mb={2}>
-          Reports
-        </Typography>
+        <Box
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+          mb={2}
+        >
+          <Typography variant="h4">Reports</Typography>
+          <Box display="flex" alignItems="center" gap={2}>
+            <Typography variant="body2" color="text.secondary">
+              {me?.email} ({me?.role})
+            </Typography>
+            <Button onClick={signOut}>Sign out</Button>
+          </Box>
+        </Box>
 
-        <FormControlLabel
-          control={
-            <Switch
-              checked={isAdmin}
-              onChange={() => setUserRole(isAdmin ? "Viewer" : "Admin")}
-            />
-          }
-          label={`Role: ${userRole}`}
-        />
+        {isAdmin && (
+          <Button variant="outlined" onClick={() => setEditorOpen(true)}>
+            New report
+          </Button>
+        )}
 
         <ReportEditorDialog />
 
-        <Box mt={4} mb={2}>
-          <TextField
-            fullWidth
-            placeholder="Prompt for draft..."
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-          />
-          {isAdmin && (
+        {isAdmin && (
+          <Box mt={4} mb={2}>
+            <TextField
+              fullWidth
+              placeholder="Prompt for draft..."
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+            />
             <Button
               onClick={handleGenerateDraft}
               sx={{ mt: 1 }}
@@ -86,14 +102,13 @@ const Dashboard = () => {
             >
               {loading ? <CircularProgress size={24} /> : "Generate Draft"}
             </Button>
-          )}
-
-          {error && (
-            <Typography color="error" mt={1}>
-              {error}
-            </Typography>
-          )}
-        </Box>
+            {error && (
+              <Typography color="error" mt={1}>
+                {error}
+              </Typography>
+            )}
+          </Box>
+        )}
 
         <Box mb={2}>
           <TextField
@@ -110,8 +125,16 @@ const Dashboard = () => {
             }}
           />
         </Box>
-        {/* Report List */}
-        <SortableReportList reports={filteredReports} />
+        {reportsError && (
+          <Typography color="error" mb={2}>
+            {reportsError}
+          </Typography>
+        )}
+        {loadingReports && reports.length === 0 ? (
+          <CircularProgress />
+        ) : (
+          <SortableReportList reports={filteredReports} />
+        )}
       </Paper>
     </Box>
   );

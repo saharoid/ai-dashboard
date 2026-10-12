@@ -1,13 +1,13 @@
 // components/SortableReportList.tsx
 import {
   DndContext,
+  DragEndEvent,
   closestCenter,
   PointerSensor,
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
 import {
-  arrayMove,
   SortableContext,
   useSortable,
   horizontalListSortingStrategy,
@@ -40,18 +40,13 @@ interface Props {
 }
 
 const SortableReportList: React.FC<Props> = ({ reports }) => {
-  const reorderReports = useReportStore((s) => s.reorderReports);
+  const moveReport = useReportStore((s) => s.moveReport);
 
   const sensors = useSensors(useSensor(PointerSensor));
 
-  const handleDragEnd = (event: any) => {
-    const { active, over } = event;
-
-    if (active.id !== over?.id) {
-      const oldIndex = reports.findIndex((r) => r.id === active.id);
-      const newIndex = reports.findIndex((r) => r.id === over?.id);
-
-      reorderReports(arrayMove(reports, oldIndex, newIndex));
+  const handleDragEnd = ({ active, over }: DragEndEvent) => {
+    if (over && active.id !== over.id) {
+      moveReport(String(active.id), String(over.id));
     }
   };
 
