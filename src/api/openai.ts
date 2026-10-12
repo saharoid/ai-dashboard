@@ -1,13 +1,19 @@
-import { api } from "./client";
+import { marked } from "marked";
+import { streamPost } from "./stream";
 
-// Calls go to our own server (server/index.ts). The OpenAI key stays there.
+// Calls go to our own server (server/). The OpenAI key stays there.
+// Replies stream in as Markdown; we keep HTML, like the editor does.
 
-export const generateDraft = async (prompt: string): Promise<string> => {
-  const res = await api.post("/draft", { prompt });
-  return res.data.content;
-};
+export const markdownToHtml = (markdown: string): string =>
+  marked.parse(markdown, { async: false });
 
-export const summarizeContent = async (content: string): Promise<string> => {
-  const res = await api.post("/summarize", { content });
-  return res.data.content;
-};
+export const streamDraft = (
+  prompt: string,
+  onText: (text: string) => void
+): Promise<string> => streamPost("/draft", { prompt }, onText);
+
+export const streamSummary = (
+  reportId: string,
+  onText: (text: string) => void
+): Promise<string> =>
+  streamPost(`/reports/${reportId}/summarize`, {}, onText);

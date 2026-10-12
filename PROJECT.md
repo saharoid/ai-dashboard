@@ -55,11 +55,12 @@ Scripts: `npm run dev`, `npm run build`, `npm run lint`, `npm run preview`.
 2. ~~**No backend.**~~ Fixed in steps 2+3: reports in Supabase Postgres,
    Supabase Auth sign-in, role in `profiles` checked by the server.
 3. ~~**No way to create a blank report.**~~ Fixed: "New report" button.
-4. **Summarize is destructive.** It overwrites the original content.
+4. ~~**Summarize is destructive.**~~ Fixed in step 4: summary saved in its own
+   `summary` column, shown above the content.
 5. ~~**Reorder while searching drops reports.**~~ Fixed: reorder moves within
    the full list.
-6. **AI output not formatted.** Model returns plain text/markdown, stored as
-   HTML content.
+6. ~~**AI output not formatted.**~~ Fixed in step 4: Markdown turned into HTML
+   with `marked`; replies stream in.
 7. Leftovers: package name `test-app`, page title "Vite + React + TS", outdated
    model (`gpt-4`), `any` in drag handler, no tests.
 

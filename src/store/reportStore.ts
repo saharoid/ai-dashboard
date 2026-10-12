@@ -17,6 +17,7 @@ interface ReportStore {
   addReport: (input: ReportInput) => Promise<void>;
   updateReport: (id: string, input: ReportInput) => Promise<void>;
   moveReport: (activeId: string, overId: string) => Promise<void>;
+  setSummary: (id: string, summary: string) => void;
   setEditorOpen: (open: boolean) => void;
   selectReport: (report: Report | null) => void;
   setSearchQuery: (query: string) => void;
@@ -70,6 +71,12 @@ export const useReportStore = create<ReportStore>()((set, get) => ({
       set({ reports: before, error: "Failed to save order" });
     }
   },
+
+  // The server already saved it; mirror it locally.
+  setSummary: (id, summary) =>
+    set((state) => ({
+      reports: state.reports.map((r) => (r.id === id ? { ...r, summary } : r)),
+    })),
 
   setEditorOpen: (open) => set({ editorOpen: open }),
   selectReport: (report) => set({ selectedReport: report }),

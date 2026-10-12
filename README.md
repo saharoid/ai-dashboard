@@ -8,8 +8,8 @@ This is a React + TypeScript dashboard for managing reports with AI-powered draf
 Create & Edit Reports
 Rich-text editor with full formatting via Jodit. Create and modify reports using a Material UI dialog.
 
-AI Summarization
-Use OpenAI’s API to summarize report content with one click (Admin only).
+AI Drafts & Summaries
+Generate a report from a prompt, or summarize a report with one click (Admin only). Text streams in as it is written. The summary is saved next to the report, so the original content is kept.
 
 Drag & Drop Reordering
 Reorder reports manually with @dnd-kit.
@@ -75,21 +75,17 @@ All routes except `/api/health` need `Authorization: Bearer <Supabase access tok
 | `PUT /api/reports/:id` | admin | update `{ title, content }` |
 | `DELETE /api/reports/:id` | admin | delete |
 | `PUT /api/reports/order` | admin | save order `{ ids }` |
-| `POST /api/draft` | admin | AI draft `{ prompt }` |
-| `POST /api/summarize` | admin | AI summary `{ content }` |
+| `POST /api/draft` | admin | stream an AI draft `{ prompt }` (Markdown, plain text) |
+| `POST /api/reports/:id/summarize` | admin | stream an AI summary, then save it as `summary` |
 
 ## 🤖 AI Integration
 
-The browser calls our own API server, which calls OpenAI's Chat Completion API:
+The browser calls our API server, which calls OpenAI's Chat Completions API with streaming on and passes the text through as it arrives.
 
-- `POST /api/draft` with `{ prompt }`
-- `POST /api/summarize` with `{ content }`
-
-Both return `{ content }`. Model defaults to gpt-4 (set `OPENAI_MODEL` to change).
-
-Uses content from the report as input.
-
-Response is parsed and saved directly into the report.
+- Model defaults to `gpt-5-mini`. Set `OPENAI_MODEL` to change it.
+- `OPENAI_BASE_URL` points at any OpenAI-compatible API (useful for tests).
+- Replies are Markdown. They are turned into HTML (with `marked`) and sanitized with DOMPurify when shown.
+- If the stream is cut off, the summary is not saved and the old one stays.
 
 ## Known Limitations / Assumptions
 

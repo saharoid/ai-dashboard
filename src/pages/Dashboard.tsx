@@ -8,7 +8,8 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { useReportStore } from "../store/reportStore";
-import { generateDraft } from "../api/openai";
+import { markdownToHtml, streamDraft } from "../api/openai";
+import DOMPurify from "dompurify";
 import { useEffect, useState } from "react";
 import ReportEditorDialog from "../components/ReportEditorDialog";
 import SearchIcon from "@mui/icons-material/Search";
@@ -30,6 +31,7 @@ const Dashboard = () => {
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [draft, setDraft] = useState<string | null>(null);
   const isAdmin = me?.role === "admin";
 
   useEffect(() => {
@@ -39,8 +41,10 @@ const Dashboard = () => {
   const handleGenerateDraft = async () => {
     setLoading(true);
     setError(null);
+    setDraft("");
     try {
-      const content = await generateDraft(prompt);
+      const markdown = await streamDraft(prompt, setDraft);
+      const content = markdownToHtml(markdown);
       const titleFromPrompt =
         prompt.length > 60 ? prompt.slice(0, 60) + "..." : prompt;
       await addReport({
@@ -49,9 +53,10 @@ const Dashboard = () => {
       });
       setPrompt("");
     } catch (e) {
-      console.log(e);
+      console.error(e);
       setError("Failed to generate draft");
     } finally {
+      setDraft(null);
       setLoading(false);
     }
   };
@@ -102,6 +107,17 @@ const Dashboard = () => {
             >
               {loading ? <CircularProgress size={24} /> : "Generate Draft"}
             </Button>
+            {draft && (
+              <Paper variant="outlined" sx={{ mt: 2, p: 2 }}>
+                <Typography
+                  variant="body2"
+                  component="div"
+                  dangerouslySetInnerHTML={{
+                    __html: DOMPurify.sanitize(markdownToHtml(draft)),
+                  }}
+                />
+              </Paper>
+            )}
             {error && (
               <Typography color="error" mt={1}>
                 {error}
