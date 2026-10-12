@@ -1,0 +1,27 @@
+# Render Blueprint: one web service serves the API and the built web app.
+# New > Blueprint in the Render dashboard, pick this repo, then fill in the
+# env vars it asks for (sync: false = you type the value).
+services:
+  - type: web
+    name: ai-dashboard
+    runtime: node
+    plan: free
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_MODEL
+        value: gpt-5-mini
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      # Read at build time and shipped to the browser (public values).
+      - key: VITE_SUPABASE_URL
+        sync: false
+      - key: VITE_SUPABASE_ANON_KEY
+        sync: false

@@ -1,8 +1,10 @@
 import { Router } from "express";
+import { marked } from "marked";
+import { failBeforeStream, MAX_INPUT_CHARS, streamCompletion } from "./ai";
 import { requireAdmin } from "./auth";
 import { supabase } from "./supabase";
 
-const FIELDS = "id, title, content, position";
+const FIELDS = "id, title, content, summary, position";
 const MAX_TITLE = 200;
 const MAX_CONTENT = 200_000;
 
@@ -10,6 +12,17 @@ const isText = (v: unknown, max: number): v is string =>
   typeof v === "string" && v.trim().length > 0 && v.length <= max;
 
 export const reports = Router();
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+// A malformed id can't match a report; answer 404 instead of a DB error.
+reports.param("id", (_req, res, next, id: string) => {
+  if (!UUID.test(id)) {
+    res.status(404).json({ error: "Report not found" });
+    return;
+  }
+  next();
+});
 
 reports.get("/", async (_req, res) => {
   const { data, error } = await supabase
@@ -103,6 +116,45 @@ reports.put("/:id", requireAdmin, async (req, res) => {
     return;
   }
   res.json(data);
+});
+
+// Stream an AI summary of the report, then save it next to the content.
+reports.post("/:id/summarize", requireAdmin, async (req, res) => {
+  const { data: report, error } = await supabase
+    .from("reports")
+    .select("content")
+    .eq("id", req.params.id)
+    .maybeSingle();
+  if (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to load report" });
+    return;
+  }
+  if (!report) {
+    res.status(404).json({ error: "Report not found" });
+    return;
+  }
+
+  const content = report.content.slice(0, MAX_INPUT_CHARS);
+  const prompt =
+    "Summarize the report below in a few short bullet points. " +
+    "Reply in Markdown only, no preamble. The report is HTML.\n\n" +
+    content;
+
+  let markdown: string | null;
+  try {
+    markdown = await streamCompletion(prompt, res);
+  } catch (e) {
+    failBeforeStream(res, e);
+    return;
+  }
+  if (markdown === null) return; // stream cut short: keep the old summary
+
+  const { error: saveError } = await supabase
+    .from("reports")
+    .update({ summary: await marked.parse(markdown) })
+    .eq("id", req.params.id);
+  if (saveError) console.error(saveError);
 });
 
 reports.delete("/:id", requireAdmin, async (req, res) => {
