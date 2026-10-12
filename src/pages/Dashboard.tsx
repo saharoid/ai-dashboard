@@ -86,14 +86,14 @@ const Dashboard = () => {
 
         <ReportEditorDialog />
 
-        <Box mt={4} mb={2}>
-          <TextField
-            fullWidth
-            placeholder="Prompt for draft..."
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-          />
-          {isAdmin && (
+        {isAdmin && (
+          <Box mt={4} mb={2}>
+            <TextField
+              fullWidth
+              placeholder="Prompt for draft..."
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+            />
             <Button
               onClick={handleGenerateDraft}
               sx={{ mt: 1 }}
@@ -102,14 +102,13 @@ const Dashboard = () => {
             >
               {loading ? <CircularProgress size={24} /> : "Generate Draft"}
             </Button>
-          )}
-
-          {error && (
-            <Typography color="error" mt={1}>
-              {error}
-            </Typography>
-          )}
-        </Box>
+            {error && (
+              <Typography color="error" mt={1}>
+                {error}
+              </Typography>
+            )}
+          </Box>
+        )}
 
         <Box mb={2}>
           <TextField

@@ -43,6 +43,8 @@ npm install
 
 Create a project at https://supabase.com. In the SQL editor, run `supabase/migrations/0001_reports_and_profiles.sql`.
 
+Or run Supabase locally (needs Docker): `npx supabase start`. It applies the migration and prints the URL and keys for `.env`.
+
 4. Add your keys
 
 cp .env.example .env   # then fill in every value
