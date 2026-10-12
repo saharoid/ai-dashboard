@@ -13,6 +13,17 @@ const isText = (v: unknown, max: number): v is string =>
 
 export const reports = Router();
 
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+// A malformed id can't match a report; answer 404 instead of a DB error.
+reports.param("id", (_req, res, next, id: string) => {
+  if (!UUID.test(id)) {
+    res.status(404).json({ error: "Report not found" });
+    return;
+  }
+  next();
+});
+
 reports.get("/", async (_req, res) => {
   const { data, error } = await supabase
     .from("reports")

@@ -87,6 +87,22 @@ The browser calls our API server, which calls OpenAI's Chat Completions API with
 - Replies are Markdown. They are turned into HTML (with `marked`) and sanitized with DOMPurify when shown.
 - If the stream is cut off, the summary is not saved and the old one stays.
 
+## 🧪 Tests and CI
+
+npm test        # vitest: API routes (fake Supabase and OpenAI) and the report store
+npm run lint
+npm run build   # type-checks web and server, then builds the web app
+
+GitHub Actions (`.github/workflows/ci.yml`) runs lint, tests, and build on every push to `main` and every pull request.
+
+## 🚢 Deploy
+
+In production one Node server serves both the API and the built web app (`npm run build`, then `npm start`).
+
+`render.yaml` sets this up on Render: in the Render dashboard pick New > Blueprint, choose this repo, and fill in the env vars it asks for. `VITE_*` values are read at build time, so redeploy after changing them. Run the SQL files in `supabase/migrations/` on your Supabase project first.
+
+Any host that runs Node 22 works the same way: set the env vars from `.env.example`, run `npm ci && npm run build`, start with `npm start`, health check at `/api/health`.
+
 ## Known Limitations / Assumptions
 
 OpenAI test API works a bit slow.

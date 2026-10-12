@@ -15,6 +15,8 @@ interface AuthState {
   session: Session | null;
   me: Me | null;
   ready: boolean;
+  // Signed in, but the server could not load the profile.
+  error: string | null;
   init: () => () => void;
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string) => Promise<void>;
@@ -28,10 +30,15 @@ const loadMe = async (session: Session | null): Promise<Me | null> =>
 export const useAuthStore = create<AuthState>()((set) => {
   const apply = async (session: Session | null) => {
     try {
-      set({ session, me: await loadMe(session), ready: true });
+      set({ session, me: await loadMe(session), ready: true, error: null });
     } catch (e) {
       console.error(e);
-      set({ session, me: null, ready: true });
+      set({
+        session,
+        me: null,
+        ready: true,
+        error: "Signed in, but could not load your profile. The server may be down.",
+      });
     }
   };
 
@@ -39,6 +46,7 @@ export const useAuthStore = create<AuthState>()((set) => {
     session: null,
     me: null,
     ready: false,
+    error: null,
 
     init: () => {
       const { data } = supabase.auth.onAuthStateChange((event, session) => {

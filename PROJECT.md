@@ -61,8 +61,8 @@ Scripts: `npm run dev`, `npm run build`, `npm run lint`, `npm run preview`.
    the full list.
 6. ~~**AI output not formatted.**~~ Fixed in step 4: Markdown turned into HTML
    with `marked`; replies stream in.
-7. Leftovers: package name `test-app`, page title "Vite + React + TS", outdated
-   model (`gpt-4`), `any` in drag handler, no tests.
+7. ~~Leftovers~~ Fixed in steps 5+6: package and page renamed, Vite template
+   CSS replaced by MUI CssBaseline, model updated, tests and CI added.
 
 ## MVP direction (proposed)
 
