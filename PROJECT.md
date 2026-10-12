@@ -50,9 +50,8 @@ Scripts: `npm run dev`, `npm run build`, `npm run lint`, `npm run preview`.
 
 ## Known issues found in review
 
-1. **API key exposed.** `.env` with a real `VITE_API_KEY` is committed to git.
-   `VITE_` vars are bundled into the client, and `src/api/openai.ts` logs the
-   key with `console.log`. The key must be revoked and moved server-side.
+1. ~~**API key exposed.**~~ Fixed in step 1: key moved to the Express server
+   in `server/`. The old key is still in git history and must be revoked.
 2. **No backend.** Data lives only in one browser's localStorage. Roles are a
    UI toggle, not auth.
 3. **No way to create a blank report.** The editor dialog supports create, but

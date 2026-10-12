@@ -39,13 +39,24 @@ cd ai-dashboard
 
 npm install
 
+3. Add your OpenAI key
+
+cp .env.example .env   # then set OPENAI_API_KEY
+
+The key is read only by the Express server in `server/`. It is never sent to the browser.
+
+4. Run
+
+npm run dev   # starts Vite (web) and the API server together; Vite forwards /api to it
+
 ## 🤖 AI Integration
 
-AI features use OpenAI's Chat Completion API:
+The browser calls our own API server, which calls OpenAI's Chat Completion API:
 
-Endpoint: https://api.openai.com/v1/chat/completions
+- `POST /api/draft` with `{ prompt }`
+- `POST /api/summarize` with `{ content }`
 
-Model: gpt-4
+Both return `{ content }`. Model defaults to gpt-4 (set `OPENAI_MODEL` to change).
 
 Uses content from the report as input.
 
@@ -61,7 +72,7 @@ The app will re-render and restrict actions accordingly
 
 ## Known Limitations / Assumptions
 
-No backend: All data is stored in localStorage. A real-world app would persist to a backend API.
+No database: All data is stored in localStorage. The only backend is the AI proxy in `server/`.
 
 OpenAI test API works a bit slow.
 
